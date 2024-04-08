@@ -5,17 +5,16 @@ if(isset($_POST['add_to_cart'])){
     // Check if the session variable 'cart' is set
     if(isset($_SESSION['cart'])){
         $products_array_ids = array_column($_SESSION['cart'],"product_id");
-        
         // Check if the product has already been added to the cart
         if(!in_array($_POST['product_id'], $products_array_ids)){
-            $product_array = array(
+          $product_id= $_POST['product_id'];
+          $product_array = array(
                 'product_id' => $_POST['product_id'],
                 'product_name' => $_POST['product_name'],
                 'product_price' => $_POST['product_price'],
                 'product_image' => $_POST['product_image'],
                 'product_quantity' =>  $_POST['product_quantity']
             );
-
             $_SESSION['cart'][$_POST['product_id']] = $product_array;
         } else {
             echo '<script>alert("Product was already added to the cart"); </script>';
@@ -33,37 +32,33 @@ if(isset($_POST['add_to_cart'])){
         $_SESSION['cart'][$_POST['product_id']] = $product_array;
     }
 	//remove product from the cart
-}
-else if(isset($_POST['remove_product'])){
-
+}else if(isset($_POST['remove_product'])){
 	$product_id =$_POST['product_id'];
 	unset($_SESSION['cart'][$product_id]);
-
-
-}
-else if(isset($_POST['edit_quantity'])){
-
+}else if(isset($_POST['edit_quantity'])){
 	//we get id and product_quantity from the form
 	$product_id =$_POST['product_id'];
-	$product_quantity =$_POST['product_quantity'];
-
-
+	$product_quantity = $_POST['product_quantity'];
 	//get the product array from the session
 	$product_array= $_SESSION['cart'][$product_id];
-
-	//update product product_quantity
-	$product_array['product_quantity']= $product_quantity;
-	//return array back to its place
-	$_SESSION['cart'][$_product_id] = $product_array;
-
-
-
-
+  $_SESSION['cart'][$product_id]['product_quantity'] = $product_quantity; 
 }else{
 	//header('location: index.php');
-
+}
+function calculateTotalCart()
+{
+    $total = 0;
+    if (isset($_SESSION['cart'])) {
+        foreach ($_SESSION['cart'] as $key => $value) {
+            $product_price = floatval($value['product_price']); // Ensure product_price is numeric
+            $product_quantity = intval($value['product_quantity']); // Ensure product_quantity is numeric
+            $total += $product_price * $product_quantity;
+        }
+        $_SESSION['total'] = $total;
+    }
 }
 ?>
+
 
 
 
@@ -189,7 +184,7 @@ else if(isset($_POST['edit_quantity'])){
 							  <form method="POST" action="cart.php">
 								<input type="hidden" name="product_id" value="<?php echo $value['product_id']; ?>" />
 								<button type="submit" name="remove_product" class="product-remove">
-									<img src="https://static-00.iconduck.com/assets.00/delete-icon-1864x2048-bp2i0gor.png" alt="Delete icon" style="width: 24px; height: 24px;">
+									<img src="https://static-00.iconduck.com/assets.00/delete-icon-1864x2048-bp2i0gor.png" name="remove_product" alt="Delete icon" style="width: 24px; height: 24px;">
 								</button>
 							</form>
 
@@ -204,12 +199,17 @@ else if(isset($_POST['edit_quantity'])){
 						        <td class="price">₹<?php echo $value['product_price'];?></td>
 						        
 								<td class="product_quantity">
+                <form method="POST" action="cart.php">
 												<div class="input-group mb-3">
-													<input type="number" name="product_quantity" class="product_quantity form-control input-number" value="1" min="1">
+                        
+                        <input type="hidden" name="product_id" value="<?php echo $value['product_id']; ?>" />
+													<input type="number" class="product_quantity form-control input-number" name="product_quantity" value="<?php echo $value['product_quantity'];?>" min="1"/>
 													<span class="input-group-btn">
-														<a class="edit-btn btn btn-outline-secondary" name="edit_quantity" href="#">Edit</a>
+														 <button class="edit-btn btn btn-outline-secondary" type="submit" name="edit_quantity">Edit</button>
 													</span>
+                         
 												</div>
+                        </form>
 											</td>
 						        
 						        <td class="total">₹<?php echo $value['product_price'];?></td>
