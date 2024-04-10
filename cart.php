@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 if (isset($_POST['add_to_cart'])) {
   if (isset($_SESSION['cart'])) {
     $PRODUCT_ARRAY_IDS = array_column($_SESSION['cart'], "product_id");
