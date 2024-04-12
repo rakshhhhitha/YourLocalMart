@@ -1,0 +1,79 @@
+/* Cart table styling */
+.cart {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px; /* Add margin for separation from other elements */
+}
+
+.cart th {
+    text-align: left;
+    padding: 10px;
+    color: #fff;
+    background-color: rgb(104, 178, 30);
+    border-bottom: 2px solid #fff;
+}
+
+.cart td {
+    padding: 20px;
+    vertical-align: middle;
+    border-bottom: 1px solid #ddd; /* Add border bottom for separation */
+}
+
+/* Product info layout */
+.product-info {
+    display: flex;
+    align-items: center;
+}
+
+.product-info img {
+    width: 2px; /* Decrease image size */
+    height: 20px; /* Maintain aspect ratio */
+    margin-right: 20px;
+}
+
+.product-details {
+    flex-grow: 1; /* Expand to fill remaining space */
+}
+
+.product-details p {
+    margin: 0;
+    font-weight: bold;
+}
+
+.product-details small {
+    color: #666;
+}
+
+/* Quantity input and edit button */
+.quantity {
+    display: flex;
+    align-items: center;
+}
+
+.quantity input[type="number"] {
+    width: 60px;
+    margin-right: 10px;
+}
+
+.edit-btn {
+    padding: 8px 16px;
+    background-color: rgb(104, 178, 30);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.edit-btn:hover {
+    background-color: #6c9c1b;
+}
+
+/* Remove button */
+.remove-btn {
+    color: #f00;
+    text-decoration: none;
+    margin-top: 5px;
+}
+
+.remove-btn:hover {
+    text-decoration: underline;
+}

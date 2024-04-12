@@ -1,0 +1,32 @@
+.input-group {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.quantity {
+    width: 50px; /* Adjust width as needed */
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.edit-btn {
+    border-radius: 5px;
+    padding: 6px 12px;
+    margin-left: -1px;
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: rgb(83, 138, 59); /* Green background color */
+    color: #fff; /* White text color */
+    border: 1px solid rgb(83, 138, 59); /* Match background color */
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+.edit-btn:hover {
+    background-color: rgb(201, 123, 34); /* Darker green on hover */
+    border-color: rgb(201, 123, 34); /* Darker border color on hover */
+}
