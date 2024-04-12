@@ -1,14 +1,16 @@
 <?php
 session_start();
-include("server/connection.php");
-// Redirect to login if already logged in
-if(isset($_SESSION["logged_in"])) {
+include ("server/connection.php");
+
+// Redirect to login page if not logged in
+if (!isset($_SESSION["logged_in"])) {
     header("location: login.php");
     exit;
 }
-// Logout functionality
-if(isset($_GET["logout"])) {
-    if(isset($_SESSION["logged_in"])) {
+
+// Handle logout
+if (isset($_GET["logout"])) {
+    if (isset($_SESSION["logged_in"])) {
         unset($_SESSION["logged_in"]);
         unset($_SESSION["user_email"]);
         unset($_SESSION["user_password"]);
@@ -16,28 +18,30 @@ if(isset($_GET["logout"])) {
         exit;
     }
 }
-// Change password logic
-if(isset($_POST['change_password'])) {
+
+// Handle password change
+if (isset($_POST['change_password'])) {
     $password = $_POST['Password'];
     $confirm_password = $_POST['ConfirmPassword'];
-    $USER_EMAIL = $_SESSION['USER_EMAIL'];
-    // if passwords don't match
-    if($password !== $confirm_password) {
+    $user_email = $_SESSION['user_email'];
+
+    // Check if passwords match
+    if ($password !== $confirm_password) {
         header('location: Account.php?error=passwords don\'t match');
         exit;
     }
-    // if password is less than 6 char
-    else if(strlen($password) < 6) {
+    // Check if password is less than 6 characters
+    else if (strlen($password) < 6) {
         header('location: Account.php?error=password must be at least 6 characters');
         exit;
     }
-    // no errors
+    // No errors
     else {
-        $stmt = $conn->prepare('UPDATE users SET USER_PASSWORD=? WHERE USER_EMAIL=?');
+        $stmt = $conn->prepare('UPDATE users SET user_password=? WHERE user_email=?');
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $stmt->bind_param('ss', $hashed_password, $USER_EMAIL);
-        
-        if($stmt->execute()) {
+        $stmt->bind_param('ss', $hashed_password, $user_email);
+
+        if ($stmt->execute()) {
             header('location: Account.php?message=password has been updated successfully');
             exit;
         } else {
@@ -131,46 +135,60 @@ if(isset($_POST['change_password'])) {
             </div>
         </div>
     </nav>
-  
-    
-<!-- Account -->
-<section class="my-5 py-5">
-    <div class="row container mx-auto">
-        <div class="text-center mt-3 pt-5 col-lg-6 col-md-12 col-sm-12">
-            <h3 class="font-weight-bold">Account info</h3>
-            <hr class="mx-auto">
-            <div class="account-info">
-                <p>Name<span><?php if(isset($_SESSION['USER_NAME'])){ echo $_SESSION['USER_NAME'];} ?></span></p>
-                <p>Email<span><?php if(isset($_SESSION['USER_EMAIL'])){  echo $_SESSION['USER_EMAIL']; }?></span></p>
-                <p><a href="#orders" id="orders-btn">Your Orders</a></p>
-                <p><a href="Account.php?logout=1" id="logout-btn">Logout</a></p>
+
+
+    <!-- Account -->
+    <section class="my-5 py-5">
+        <div class="row container mx-auto">
+            <div class="text-center mt-3 pt-5 col-lg-6 col-md-12 col-sm-12">
+                <h3 class="font-weight-bold">Account info</h3>
+                <hr class="mx-auto">
+                <div class="account-info">
+                    <p>Name : <span><?php if (isset($_SESSION['user_name'])) {
+                        echo $_SESSION['user_name'];
+                    } ?></span></p>
+                    <p>Email : <span><?php if (isset($_SESSION['user_email'])) {
+                        echo $_SESSION['user_email'];
+                    } ?></span>
+                    </p>
+                    <p><a href="#orders" id="orders-btn">Your Orders</a></p>
+                    <p><a href="Account.php?logout=1" id="logout-btn">Logout</a></p>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-12 col-sm-12">
+                <form id="account-form" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+                    <p class="text-center" style="color:red; font-size: 24px; font-weight: bold;">
+                        <?php if (isset($_GET['error'])) {
+                            echo $_GET['error'];
+                        } ?>
+                    </p>
+                    <p class="text-center" style="color:green; font-size: 24px; font-weight: bold;">
+                        <?php if (isset($_GET['message'])) {
+                            echo $_GET['message'];
+                        } ?>
+                    </p>
+                    <h3>Change Password</h3>
+                    <hr class="mx-auto">
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-control" name="Password" id="account-password" />
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" class="form-control" id="account-password-confirm"
+                            name="ConfirmPassword" />
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Change Password" name="change_password" class="btn"
+                            id="change-pass-btn" />
+                    </div>
+                </form>
             </div>
         </div>
-        <div class="col-lg-6 col-md-12 col-sm-12">
-            <form id="account-form" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-                <p class="text-center" style="color:red"><?php if(isset($_GET['error'])){ echo $_GET['error']; } ?></p>
-                <p class="text-center" style="color:green"><?php if(isset($_GET['message'])){ echo $_GET['message']; } ?></p>
-                
-                <h3>Change Password</h3>
-                <hr class="mx-auto">
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" class="form-control" name="Password" id="account-password"/>
-                </div>
-                <div class="form-group">
-                    <label>Confirm Password</label>
-                    <input type="password" class="form-control" id="account-password-confirm" name="ConfirmPassword"/>
-                </div>
-                <div class="form-group">
-                    <input type="submit" value="Change Password" name="change_password" class="btn" id="change-pass-btn"/>
-                </div>
-            </form>
-        </div>
-    </div>
-</section>
+    </section>
 
 
-<footer class="ftco-footer ftco-section">
+    <footer class="ftco-footer ftco-section">
         <div class="container">
             <div class="row">
                 <div class="mouse">
@@ -229,7 +247,7 @@ if(isset($_POST['change_password'])) {
                                 <li><a href="#"><span class="icon icon-phone"></span><span class="text">+2 392 3929
                                             210</span></a></li>
                                 <li><a href="#"><span class="icon icon-envelope"></span><span
-                                            class="text">info@yourdomain.com</span></a></li>
+                                            class="text">yourlocalmart@gmail.com</span></a></li>
                             </ul>
                         </div>
                     </div>
