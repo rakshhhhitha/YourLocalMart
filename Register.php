@@ -1,55 +1,56 @@
 <?php
 session_start();
-include('server/connection.php');
-if(isset($_POST["Register"])) {
-    $Name = $_POST['name'];
-    $Email = $_POST['email'];
-    $Password = $_POST['password'];
-    $ConfirmPassword = $_POST['ConfirmPassword'];
-    // if passwords don't match
-    if($Password !== $ConfirmPassword) {
-        header('location: Register.php?error=passwords don\'t match');
-    }
-    // if password is less than 6 char
-    else if(strlen($Password) < 6) {
-        header('location: Register.php?error=password must be at least 6 characters');
-    }
-    else {
-        // check whether there is a user with this email or not
-        $stmt1 = $conn->prepare('SELECT count(*) FROM users where user_email=?');
-        $stmt1->bind_param('s', $Email);
-        $stmt1->execute();
-        $stmt1->bind_result($num_rows);
-        $stmt1->store_result();
-        $stmt1->fetch();
-        // if there is a user already registered with this email
-        if($num_rows != 0) {
-            header('location: Register.php?error=user with this email already exists');
-        } else {
-            // create a new user
-            $hashedPassword = password_hash($Password, PASSWORD_BCRYPT);
-            $stmt = $conn->prepare('INSERT INTO users (user_name, user_email, user_password) VALUES (?, ?, ?)');
-            $stmt->bind_param('sss', $Name, $Email, $Password);
-            //if account was created successfully
-            if($stmt->execute()){
-                $_SESSION['USER_EMAIL']= $Email;
-                $_SESSION['USER_NAME']= $Name;
-                $_SESSION['logged_in']= True;
-                header('location: Account.php?Register=You registered successfully');
-            //account could not be created
-            }else{
-                header('location: Register.php?error=could not create an account at the moment');
-            }
-        }    
-        }
-        //if user has already registered, then take user to accounts page
-    }else if(isset($_SESSION['logged_in'])){
-        header('location: Account.php');
+include ("server/connection.php");
+
+// Redirect to login page if not logged in
+if (!isset($_SESSION["logged_in"])) {
+    header("location: login.php");
+    exit;
+}
+
+// Handle logout
+if (isset($_GET["logout"])) {
+    if (isset($_SESSION["logged_in"])) {
+        unset($_SESSION["logged_in"]);
+        unset($_SESSION["user_email"]);
+        unset($_SESSION["user_password"]);
+        header('location: login.php');
         exit;
     }
+}
+
+// Handle password change
+if (isset($_POST['change_password'])) {
+    $password = $_POST['Password'];
+    $confirm_password = $_POST['ConfirmPassword'];
+    $user_email = $_SESSION['user_email'];
+
+    // Check if passwords match
+    if ($password !== $confirm_password) {
+        header('location: Account.php?error=passwords don\'t match');
+        exit;
+    }
+    // Check if password is less than 6 characters
+    else if (strlen($password) < 6) {
+        header('location: Account.php?error=password must be at least 6 characters');
+        exit;
+    }
+    // No errors
+    else {
+        $stmt = $conn->prepare('UPDATE users SET user_password=? WHERE user_email=?');
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $stmt->bind_param('ss', $hashed_password, $user_email);
+
+        if ($stmt->execute()) {
+            header('location: Account.php?message=password has been updated successfully');
+            exit;
+        } else {
+            header('location: Account.php?error=could not update password');
+            exit;
+        }
+    }
+}
 ?>
-
-
 
 
 <!DOCTYPE html>
@@ -136,53 +137,55 @@ if(isset($_POST["Register"])) {
     </nav>
 
 
-
-
-    <!--Register-->
+    <!-- Account -->
     <section class="my-5 py-5">
-        <div class="container text mt-3 pt-5">
-            <h2 class="form-weight-bold">Register</h2>
-            <hr class="mx-auto">
-        </div>
-        <div class="mx-auto container">
-            <form id="register-form" method="POST" action="Register.php">
-                <p style="color:red;">
-                    <?php if (isset($_GET['error'])) {
-                        echo $_GET['error'];
-                    } ?>
-                </p>
-                <!-- Updated input names to match PHP variables -->
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" class="form-control" id="register-name" name="name" placeholder="Name"
-                        required />
+        <div class="row container mx-auto">
+            <div class="text-center mt-3 pt-5 col-lg-6 col-md-12 col-sm-12">
+                <h3 class="font-weight-bold">Account info</h3>
+                <hr class="mx-auto">
+                <div class="account-info">
+                    <p>Name : <span><?php if (isset($_SESSION['user_name'])) {
+                        echo $_SESSION['user_name'];
+                    } ?></span></p>
+                    <p>Email : <span><?php if (isset($_SESSION['user_email'])) {
+                        echo $_SESSION['user_email'];
+                    } ?></span>
+                    </p>
+                    <p><a href="#orders" id="orders-btn">Your Orders</a></p>
+                    <p><a href="Account.php?logout=1" id="logout-btn">Logout</a></p>
                 </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="text" class="form-control" id="register-email" name="email" placeholder="Email"
-                        required />
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" class="form-control" id="register-password" name="password"
-                        placeholder="Password" required />
-                </div>
-                <div class="form-group">
-                    <label>Confirm Password</label>
-                    <input type="password" class="form-control" id="register-confirm-password" name="ConfirmPassword"
-                        placeholder="Confirm Password" required />
-                </div>
-                <div class="form-group">
-                    <input type="submit" class="btn" id="register-btn" name="Register" value="Register" />
-                </div>
-                <div class="form-group">
-                    <a id="login-url" class="btn"> Do you have an account? Login</a>
-                </div>
-            </form>
+            </div>
+            <div class="col-lg-6 col-md-12 col-sm-12">
+                <form id="account-form" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+                    <p class="text-center" style="color:red; font-size: 24px; font-weight: bold;">
+                        <?php if (isset($_GET['error'])) {
+                            echo $_GET['error'];
+                        } ?>
+                    </p>
+                    <p class="text-center" style="color:green; font-size: 24px; font-weight: bold;">
+                        <?php if (isset($_GET['message'])) {
+                            echo $_GET['message'];
+                        } ?>
+                    </p>
+                    <h3>Change Password</h3>
+                    <hr class="mx-auto">
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-control" name="Password" id="account-password" />
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" class="form-control" id="account-password-confirm"
+                            name="ConfirmPassword" />
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Change Password" name="change_password" class="btn"
+                            id="change-pass-btn" />
+                    </div>
+                </form>
+            </div>
         </div>
     </section>
-
-
 
 
     <footer class="ftco-footer ftco-section">
@@ -244,7 +247,7 @@ if(isset($_POST["Register"])) {
                                 <li><a href="#"><span class="icon icon-phone"></span><span class="text">+2 392 3929
                                             210</span></a></li>
                                 <li><a href="#"><span class="icon icon-envelope"></span><span
-                                            class="text">info@yourdomain.com</span></a></li>
+                                            class="text">yourlocalmart@gmail.com</span></a></li>
                             </ul>
                         </div>
                     </div>
