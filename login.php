@@ -66,10 +66,10 @@ if(isset($_POST['login_btn'])) {
                         placeholder="Password" required />
                 </div>
                 <div class="form-group">
-                    <input type="submit" class="btn" id="login-btn" name="login_btn" value="login" />
+                    <input type="submit" class="btn btn-primary py-3 px-4" id="login-btn" name="login_btn" value="login" />
                 </div>
                 <div class="form-group">
-                    <a id="register-url" href="Register.php" class="btn"> Don't have an account? Register </a>
+                    <a id="register-url" href="Register.php" class="btn btn-primary py-3 px-4"> Don't have an account? Register </a>
                 </div>
             </form>
         </div>

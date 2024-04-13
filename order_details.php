@@ -55,14 +55,11 @@ if(isset($_GET['order_details_btn']) && isset($_GET['order_id'])){
 
                         </tbody>
                     </table>
-                    
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-
-    
 
 <?php  include('layouts/footer.php'); ?> 

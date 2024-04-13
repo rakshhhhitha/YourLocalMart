@@ -147,7 +147,7 @@ function calculateTotalCart()
                           <input type="number" class="product_quantity form-control input-number" name="product_quantity"
                             value="<?php echo $value['product_quantity']; ?>" min="1" />
                           <span class="input-group-btn">
-                            <button class="edit-btn btn btn-outline-secondary" type="submit"
+                            <button class="edit-btn btn btn btn-primary py-3 px-4" type="submit"
                               name="edit_quantity">Edit</button>
                           </span>
                         </div>
