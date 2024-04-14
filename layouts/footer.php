@@ -57,7 +57,7 @@
 								<li><span class="icon icon-map-marker"></span><span class="text">123 Bake Street,
 										Bengaluru, Karnataka, India
 									</span></li>
-								<li><a href="#"><span class="icon icon-phone"></span><span class="text">+91 96869 25606
+								<li><a href="#"><span class="icon icon-phone"></span><span class="text">+91 12345
 										</span></a></li>
 								<li><a href="#"><span class="icon icon-envelope"></span><span
 											class="text">yourlocalmart@gmail.com</span></a></li>
