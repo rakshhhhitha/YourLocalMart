@@ -2,7 +2,7 @@
 
 include ('server/connection.php');
 
-$stmt = $conn->prepare("SELECT * FROM products WHERE PRODUCT_CATEGORY='FRUITS'");
+$stmt = $conn->prepare("SELECT * FROM products WHERE PRODUCT_CATEGORY='DAIRY'");
 $stmt->execute();
 $product = $stmt->get_result(); // []
 
@@ -31,9 +31,9 @@ $product = $stmt->get_result(); // []
   <div class="container">
     <div class="row justify-content-center mb-3 pb-3">
       <div class="col-md-12 heading-section text-center ftco-animate">
-        <span class="subheading">Fruits</span>
-        <h2 class="mb-4">Fruits</h2>
-        <p>Farm fresh fruits</p>
+        <span class="subheading">DAIRY</span>
+        <h2 class="mb-4">DAIRY</h2>
+        <p>DAIRY</p>
       </div>
     </div>
   </div>

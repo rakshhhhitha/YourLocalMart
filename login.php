@@ -2,35 +2,35 @@
 session_start();
 include("server/connection.php");
 
-// Redirect to account page if already logged in
 if(isset($_SESSION["logged_in"])) {
     header("location: Account.php");
     exit;
 }
 
-// Handle login form submission
 if(isset($_POST['login_btn'])) {
     $Email = $_POST['email'];
-    $Password = md5($_POST['password']);
-    $stmt = $conn->prepare('SELECT user_id,user_name,user_email,user_password FROM users where user_email=? AND user_password=? LIMIT 1');
-    $stmt->bind_param('ss', $Email, $Password);
+    $Password = $_POST['password'];
+    $stmt = $conn->prepare('SELECT user_id, user_name, user_email, user_password FROM users WHERE user_email=? LIMIT 1');
+    $stmt->bind_param('s', $Email);
 
     if($stmt->execute()) {
         $stmt->bind_result($user_id, $user_name, $user_email, $user_password);
         
-        if($stmt->fetch()) {
+        if($stmt->fetch() && password_verify($Password, $user_password)) {
             $_SESSION['user_id'] = $user_id;
             $_SESSION['user_name'] = $user_name;
             $_SESSION['user_email'] = $user_email;
             $_SESSION['logged_in'] = true;
-            header('location: Account.php?message=logged in successfully');
+            header('location: Account.php?message=Logged in successfully');
             exit;
         } else {
-            header('location: login.php?error=could not verify your account');
+            $_SESSION['error'] = "Could not verify your account";
+            header('location: login.php');
             exit;
         }
     } else {
-        header('location: login.php?error=something went wrong');
+        $_SESSION['error'] = "Something went wrong";
+        header('location: login.php');
         exit;
     }
 }

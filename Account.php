@@ -2,13 +2,11 @@
 session_start();
 include ("server/connection.php");
 
-// Redirect to login page if not logged in
 if (!isset($_SESSION["logged_in"])) {
     header("location: login.php");
     exit;
 }
 
-// Handle logout
 if (isset($_GET["logout"])) {
     if (isset($_SESSION["logged_in"])) {
         unset($_SESSION["logged_in"]);
@@ -19,48 +17,42 @@ if (isset($_GET["logout"])) {
     }
 }
 
-// Handle password change
 if (isset($_POST['change_password'])) {
     $password = $_POST['Password'];
     $confirm_password = $_POST['ConfirmPassword'];
     $user_email = $_SESSION['user_email'];
 
-    // Check if passwords match
     if ($password !== $confirm_password) {
-        header('location: Account.php?error=passwords don\'t match');
+        $_SESSION['error'] = "Passwords don't match";
+        header('location: Account.php');
         exit;
-    }
-    // Check if password is less than 6 characters
-    else if (strlen($password) < 6) {
-        header('location: Account.php?error=password must be at least 6 characters');
+    } else if (strlen($password) < 6) {
+        $_SESSION['error'] = "Password must be at least 6 characters";
+        header('location: Account.php');
         exit;
-    }
-    // No errors
-    else {
+    } else {
         $stmt = $conn->prepare('UPDATE users SET user_password=? WHERE user_email=?');
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         $stmt->bind_param('ss', $hashed_password, $user_email);
 
         if ($stmt->execute()) {
-            header('location: Account.php?message=password has been updated successfully');
+            header('location: Account.php?message=Password has been updated successfully');
             exit;
         } else {
-            header('location: Account.php?error=could not update password');
+            $_SESSION['error'] = "Could not update password";
+            header('location: Account.php');
             exit;
         }
     }
 }
 
-
-//get orders
 if (isset($_SESSION['logged_in'])) {
     $user_id = $_SESSION['user_id'];
     $stmt = $conn->prepare("SELECT * FROM orders WHERE user_id=? ");
     $stmt->bind_param('i', $user_id);
     $stmt->execute();
-    $orders = $stmt->get_result(); // []
+    $orders = $stmt->get_result();
 }
-
 ?>
 
 
