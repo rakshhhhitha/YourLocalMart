@@ -61,15 +61,18 @@ if (isset($_POST['add_to_cart'])) {
 
 function calculateTotalCart()
 {
-  $total = 0;
-  foreach ($_SESSION['cart'] as $key => $value) {
-    $product = $_SESSION['cart'][$key];
-    $price = $product['product_price'];
-    $quantity = $product['product_quantity'];
-    $total = $total + ($price * $quantity);
-  }
-  $_SESSION['total'] = $total;
+    $total = 0;
+    foreach ($_SESSION['cart'] as $key => $value) {
+        $product = $_SESSION['cart'][$key];
+        $price = $product['product_price']; // Convert to float
+        $quantity =$product['product_quantity']; // Convert to integer
+
+        // Update the total
+        $total += $price * $quantity;
+    }
+    $_SESSION['total'] = $total;
 }
+calculateTotalCart();
 
 ?>
 
